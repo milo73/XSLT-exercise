@@ -1,0 +1,34 @@
+<personDetails>
+	<names>
+		<name>
+			<id>2</id>
+			<firstName>Demet</firstName>
+			<lastName>Dinc Oguz</lastName>
+			<description>a name2</description>
+		</name>
+		<name>
+			<id>1</id>
+			<firstName>Rogier</firstName>
+			<lastName>Koolbergen</lastName>
+			<description>a name1</description>
+		</name>
+	</names>
+	<addresses>
+		<address>
+			<id>1</id>
+			<streetName>Strekel</streetName>
+			<houseNumber>13</houseNumber>
+			<postalCode>1511 KH</postalCode>
+			<city>Oostzaan</city>
+			<description>an address1</description>
+		</address>
+		<address>
+			<id>2</id>
+			<streetName>Vegastraat</streetName>
+			<houseNumber>254</houseNumber>
+			<postalCode>1032 BJ</postalCode>
+			<city>Amsterdam</city>
+			<description>an address2</description>
+		</address>
+	</addresses>
+</personDetails>
