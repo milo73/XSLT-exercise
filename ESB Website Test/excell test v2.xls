@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="utf-8"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40"><DocumentProperties xmlns="urn:schemas-microsoft-com:office:office"><Author>ewoychowsky</Author><Company>EAW</Company><Version>10.4219</Version></DocumentProperties><OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office"><DownloadComponents/><LocationOfComponents HRef="file:///\\phlfsnt01\DOWNLOAD\OfficeXPSrc\"/></OfficeDocumentSettings><ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel"><WindowHeight>9210</WindowHeight><WindowWidth>15195</WindowWidth><WindowTopX>0</WindowTopX><WindowTopY>60</WindowTopY><ProtectStructure>False</ProtectStructure><ProtectWindows>False</ProtectWindows></ExcelWorkbook><Styles><Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Bottom"/><Borders/><Font/><Interior/><NumberFormat/><Protection/></Style></Styles><Worksheet ss:Name="Sheet1"><Table ss:ExpandedColumnCount="7" ss:ExpandedRowCount="9" x:FullColumns="1" x:FullRows="1"><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+             The RequestForUpdate route is responsible for updating a document in the
+                FuseStore and providing deltas in the form of a NOU messages to a JMS queue (to be
+                distributed to separate systems). 
+             This artifact is prepared to handle multiple document types and multiple
+                versions of each document. Each document is stored in it's own collection, by
+                default the collection name used is the same as the document type. When multiple
+                versions of a document type are configured in the allowedDocuments.xml configuration
+                file, the document that is persisted in the fuse store is always first upgraded to
+                the highest version for that document type. This upgrade is done by means of the
+                configured XSLT in the same configuration file. This is also the case when a new
+                document is created by a lower versioned RFU. An RFU can contain a complete document
+                or a fragment of this. When a fragment is given the update is done on this level
+                only, leaving the remaining fragments in tact. 
+             The delta detection of the incoming document and the persisted document is
+                done, after both have been upgraded to the highest version. When a delta is found
+                and the supplied document adheres to the business rules for that document including
+                a correct document version number ( document sequence number) amongst others, the
+                document is persisted. In the resulting RFUR the complete document as stored in the
+                fuse store is embedded. 
+             The generated NOU messages are based only on the delta's and will only
+                contain the updated fragments of a document. When multiple NOU versions are
+                configured to be send, a NOU message is send for each configured version, the
+                transformation of these messages is done using the same XSLT as configured for the
+                document types. 
+             The delivery of Nou messages is performed in a different Camel context, and
+                in case it is not successful, it attempts the delivery to the failover queue
+                provided in the designated configuration parameter and then it suspends the RFU
+                route context. If even the delivery to the failover queue fails, the nou message is
+                saved in the filesystem for future processing. 
+             When multiple RFU versions of a specific document type are allowed, it can
+                lead to potential data-loss when two systems have control over the same fragment. A
+                fragment that has an extra element in a higher version, might lose this information
+                when a lower versioned RFU is executed on this fragment. It can even happen that a
+                different fragment that is considered mandatory in the highest version is changed to
+                its default state, when a lower versioned RFU on a different fragment is performed.
+                This is per design and is currently not a problem, since only one version of the RFU
+                is allowed. 
+             In the newly introduced allowedMessages.xml and allowedDocuments.xml files
+                it is possible to configured the allowed messages coming in, i.e. the
+                requestForInformation and the related version, and the allowed documents to be
+                persisted, ie. the document types like outlet. 
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                RFUR contains wrong document version in meta
+                    data
+                Increase robustness of inflight messages for sync
+                    routes
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+                Successful RFUR will contain outlet information.
+                Move logic from the MCD to Fuse.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            Note that the port numbers for the properties mcdRfiEndpoint,
+                mcdRfuEndpoint, and mcdRfvEndpoint must be different.
+            Initial version
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFU.xsd
+                
+                
+                    
+                
+            
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/NOU.xsd
+                
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                netty:tcp://0.0.0.0:9998
+                tcp://dtgaamqcrm01.dtglan.local:61616
+                dtg-acc
+                mongo12c01.dev.eurodir.eu:27017,mongo12c02.dev.eurodir.eu:27017
+                8
+                
+                jms:queue:esbInputQueue
+                ********
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                false
+                false
+                true
+                false
+                jms:queue:deadletter
+                /var/lib/jboss/jboss-fuse/instances/dtgamcdcrma01/nouFailsafe
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+            The ESB can generate an overview of all routes, and/or detailed information
+                per route in HTML.
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+            
+                Finalize esb-website 6.1.0.RC1.
+                Create release candidate 6.1.0.RC1.
+            
+            
+                Show route image when present and place xslt on schema
+                    server
+                Update esb-website to be compliant with esb-route.xsd
+                    v1.2
+                Upgraded to Fuse 6.0
+            
+            
+                Duplicate name in the blacklist and whitelist debtor
+                    status route
+                Upgrade route to AbstractRouteBuilder and Camel
+                    2.10.0
+            
+            
+                Initial creation of esb-website concept.
+                Finalize esb-route schema.
+                Extended concept now the underlying XSD is
+                    finalized.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            No requirements were available and as result the ESB team
+                created an initial version.
+            Investigation started to fetch more requirements from
+                operations, testers and the architect in order to finalize the schema.
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    
+                    
+                    
+                
+            
+            
+                
+                    http://schema.detelefoongids.nl/esb-config/v1.2/esb-route.xsd
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                9090
+                http://schema.detelefoongids.nl/translate/esbwebsite/represent-routes.xsl
+                http://schema.detelefoongids.nl/translate/esbwebsite/represent-route-detail.xsl
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+             The RequestForInformation route is responsible for retrieving one or more
+                documents of a specific type from the FuseStore. Currently, the only document type
+                supported is an 'Outlet' document, but this route is prepared for handling other
+                document types as well. Documents of type outlet can be retrieved using the
+                outlet/outletId or the outlet/account/number. If required the fetch outlet document
+                is transformed to the document version requested by the RFI. 
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                RFUR contains wrong document version in meta
+                    data
+                Increase robustness of inflight messages for sync
+                    routes
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+                Move logic from the MCD to Fuse.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            Note that the port numbers for the properties mcdRfiEndpoint,
+                mcdRfuEndpoint, and mcdRfvEndpoint must be distinct.
+            Initial version
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFI.xsd
+                    http://schema.detelefoongids.nl/message/v2.5/RFI.xsd
+                
+                
+                    
+                
+            
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                netty:tcp://0.0.0.0:9997
+                dtg-acc
+                mongo12c01.dev.eurodir.eu:27017,mongo12c02.dev.eurodir.eu:27017
+                8
+                
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                false
+                false
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+             The RequestForValidation route validates the 'fragments' of an document.
+                Each fragment receives a hash code to be able to check whether a document to persist
+                was validated, and if so, to detect any changes made to the document, after having
+                it was validated. The RequestForUpdate only persists documents (e.g. outlets) that
+                have a data hash associated with each fragment, and that after recalculating the
+                data hashes, the document's contents have not changed. 
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                Enforce generation of unique id's for outletId's
+                RFUR contains wrong document version in meta
+                    data
+                Increase robustness of inflight messages for sync
+                    routes
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+                Changed version to align with the esb-validation-facade
+                    artefact.
+                Move logic from the MCD to Fuse.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            Note that the port numbers for the properties mcdRfiEndpoint,
+                mcdRfuEndpoint, and mcdRfvEndpoint should be different.
+            Initial version
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFV.xsd
+                
+                
+                    
+                
+            
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                netty:tcp://0.0.0.0:9999
+                direct-vm:validationFacadeEndpoint
+                ********
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                false
+                false
+                false
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+             The RequestForUpdate route is responsible for updating a document in the
+                FuseStore and providing deltas in the form of a NOU messages to a JMS queue (to be
+                distributed to separate systems). 
+             This artifact is prepared to handle multiple document types and multiple
+                versions of each document. Each document is stored in it's own collection, by
+                default the collection name used is the same as the document type. When multiple
+                versions of a document type are configured in the allowedDocuments.xml configuration
+                file, the document that is persisted in the fuse store is always first upgraded to
+                the highest version for that document type. This upgrade is done by means of the
+                configured XSLT in the same configuration file. This is also the case when a new
+                document is created by a lower versioned RFU. An RFU can contain a complete document
+                or a fragment of this. When a fragment is given the update is done on this level
+                only, leaving the remaining fragments in tact. 
+             The delta detection of the incoming document and the persisted document is
+                done, after both have been upgraded to the highest version. When a delta is found
+                and the supplied document adheres to the business rules for that document including
+                a correct document version number ( document sequence number) amongst others, the
+                document is persisted. In the resulting RFUR the complete document as stored in the
+                fuse store is embedded. 
+             The generated NOU messages are based only on the delta's and will only
+                contain the updated fragments of a document. When multiple NOU versions are
+                configured to be send, a NOU message is send for each configured version, the
+                transformation of these messages is done using the same XSLT as configured for the
+                document types. 
+             The delivery of Nou messages is performed in a different Camel context, and
+                in case it is not successful, it attempts the delivery to the failover queue
+                provided in the designated configuration parameter and then it suspends the RFU
+                route context. If even the delivery to the failover queue fails, the nou message is
+                saved in the filesystem for future processing. 
+             When multiple RFU versions of a specific document type are allowed, it can
+                lead to potential data-loss when two systems have control over the same fragment. A
+                fragment that has an extra element in a higher version, might lose this information
+                when a lower versioned RFU is executed on this fragment. It can even happen that a
+                different fragment that is considered mandatory in the highest version is changed to
+                its default state, when a lower versioned RFU on a different fragment is performed.
+                This is per design and is currently not a problem, since only one version of the RFU
+                is allowed. 
+             In the newly introduced allowedMessages.xml and allowedDocuments.xml files
+                it is possible to configured the allowed messages coming in, i.e. the
+                requestForInformation and the related version, and the allowed documents to be
+                persisted, ie. the document types like outlet. 
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                RFUR contains wrong document version in meta
+                    data
+                Increase robustness of inflight messages for sync
+                    routes
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+                Successful RFUR will contain outlet information.
+                Move logic from the MCD to Fuse.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            Note that the port numbers for the properties mcdRfiEndpoint,
+                mcdRfuEndpoint, and mcdRfvEndpoint must be different.
+            Initial version
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFU.xsd
+                
+                
+                    
+                
+            
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/NOU.xsd
+                
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                netty:tcp://0.0.0.0:9998
+                tcp://dtgaamqcrm01.dtglan.local:61616
+                dtg-acc
+                mongo12c01.dev.eurodir.eu:27017,mongo12c02.dev.eurodir.eu:27017
+                8
+                
+                jms:queue:esbInputQueue
+                ********
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                false
+                false
+                true
+                false
+                jms:queue:deadletter
+                /var/lib/jboss/jboss-fuse/instances/dtgamcdcrma01/nouFailsafe
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+             The validation-hi route validates name and address fragments by calling the
+                Human Inference (HI) service. The result of this call is incorporated into the
+                original fragment. 
+             In general the response of HI will become the leading answer. However when a
+                conflict was found between some of the fields of the fragment, An alternative
+                fragment is included into the original fragment. Any fields that were originally
+                left blank and were complemented by HI are also enriched in this alternative
+                fragment. This will give the end-user the ability to overrule the validation of HI.
+                When no conflict is found the alternative fragment will not be generated. For
+                name/business validations the alternative section will not be enriched with data
+                from HI, instead the original fragment will be constructed so that all information
+                is consisted with the validated business name. 
+             When an alternative fragment is included it will have it's own quality
+                element - with a unique datahash, including a message stating that the end-user has
+                overruled HI. 
+             When HI is for some reason unavailable, the validation result will state
+                this in the user message. This will allow the business to continue. 
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+            
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                RFUR contains wrong document version in meta
+                    data.
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+            
+            
+                Implement HI interface
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            Since this artifact should not be called directly from any
+                artifact other than the esb-validation-facade. The consuming in-endpoint cannot be
+                configured.
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFV.xsd
+                
+                
+                    
+                
+            
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                netty:tcp://0.0.0.0:9999
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                http://ams-hi01-p01:8080/axis2/services/SoapConnector
+                20000
+                resource:///xml/refDbStdAddress.xml
+                false
+            
+        </Data></Cell></Row><Row><Cell><Data ss:Type="String"/></Cell><Cell><Data ss:Type="String">
+            The esb-validation-facade (EVF) is an internal MCD component. The EVF is
+                built as a collection of Apache Camel routes, where each route implements a specific
+                validation. There are routes for the validation of telephone numbers, IBAN formatted
+                bank account numbers, email addresses, (web) uniform resource locators, and names
+                and addresses.
+            A 'main' route is responsible for accepting 'request for validation' (RFV)
+                messages, and producing request for validation response (RFVR) messages. An RFV
+                message contains an 'std' element that contains the fragment to validate. The
+                fragment in the RFV message is passed verbatim to the appropriate validation route.
+                The validation response coming back from the sub routes is wrapped by the main route
+                in an RFVR.
+            For its correct operation the EVF relies on the esb-ws-endpoint (which is the
+                principle entry point of the ESB) to tell which validation to perform on the
+                incoming RFV message. Also the esb-ws-endpoint ensures that the RFV message
+                validates against the RFV schema.
+        </Data></Cell><Cell><Data ss:Type="String">http://ams-build01:8081/esbdev/images/facade-flow-6.0.1.png</Data></Cell><Cell><Data ss:Type="String">
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                Finalize fuse-mcd 6.3.1.RC1
+            
+            
+                Production Defect : Web validation produces inconsistent
+                    results under heavy load. ( DTGESB-4150 ).
+            
+            
+                Std validation Telecom on Full
+                Test finding : CRM: Address validation is accepting wrong
+                    combinations (DTGCONTST-1485)
+                Test finding : CRM: Premise code in requestForValidation
+                    does not change (DTGCONTST-1568)
+                Migration finding: alternative niet gevuld bij switch van
+                    business naar residential
+                Ensure aid's are generated on the fragments in the
+                    RFV
+                Derive BIC code from IBAN bankaccount in std
+                    validation
+                Incorrect derived types in telecom fragment
+                As a system I want to store multiple versions of a data
+                    (document types) in the database
+                HI address validation now add house number addition and
+                    residence name into one field.
+                Add account fragment to notification on update
+                    messages
+            
+            
+                Placement Hierarchy in original address validation is
+                    repeated, if provided in the input message
+                Problem with NOU message on the CI environment
+                Ensure NOU messages from RFU are send in a separate
+                    route
+                RFV-std-address validatie aanpassen zodat
+                    placementHierarchy gevuld wordt
+                Implemented new outlet 2.4 in MCD
+                Implement new std in validation facade
+                Update std for telephone number
+                Update std for email
+                Update std for web
+                Update std for iban
+                Update std for name, and address
+                As a CRM or MBS user I want to treat the business name
+                    validation different.
+            
+            
+                Verify if removal of context type in telecom validation
+                    is correct
+                Enrich/adapt fragment in request, instead of replacing it
+                    entirely with the validation result.
+                Derived type section was created incorrectly in the
+                    telecom validation response.
+                RFUR contains wrong document version in meta
+                    data
+                Refactor WebErrorMessageType so it becomes
+                    dynamic
+                Avoid class cast problem in MCD in case of old
+                    data
+                Increase robustness of in-flight messages for sync
+                    routes.
+                Create release candidate.
+                Changed version to avoid confusion about which artifact
+                    is used - standalone esb-validation-facade vs esb-validation-facade used in the
+                    fuse-mcd project.
+                Refactor validation to only accept fragments.
+            
+            
+                Upgraded to root pom 6.0.0.RC1 and implemented
+                    user-story: As external system user I want to validate my email address or web
+                    url.
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            The property esb-common.restValidationPort can be removed from the shared
+                configuration file.
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                
+                    http://schema.detelefoongids.nl/message/v2.4/RFV.xsd
+                
+                
+            
+        </Data></Cell><Cell><Data ss:Type="String">
+            
+                /META-INF/docmodel/xml/allowedDocuments.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedDocuments.xsd
+                /META-INF/docmodel/xml/allowedMessages.xml
+                http://schema.detelefoongids.nl/esb-config/V1.0/allowedMcdMessages.xsd
+                /META-INF/docmodel/xsl
+            
+            
+                false
+                resource:///refDbStdEmailWeb.xml
+                resource:///refDbStdEmailWeb.xml
+                /refDbStdBankaccount.xml
+            
+        </Data></Cell></Row></Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><Print><ValidPrinterInfo/><HorizontalResolution>1200</HorizontalResolution><VerticalResolution>1200</VerticalResolution></Print><ProtectObjects>False</ProtectObjects><ProtectScenarios>False</ProtectScenarios></WorksheetOptions></Worksheet></Workbook>
